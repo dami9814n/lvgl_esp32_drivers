@@ -16,6 +16,7 @@
 #include "lvgl_spi_conf.h"
 
 #include "lvgl_i2c/i2c_manager.h"
+#include <hal/spi_types.h>
 
 #ifdef LV_LVGL_H_INCLUDE_SIMPLE
 #include "lvgl.h"
@@ -154,7 +155,7 @@ bool lvgl_spi_driver_init(int host,
     int dma_channel,
     int quadwp_pin, int quadhd_pin)
 {
-    assert((0 <= host) && (SPI_HOST_MAX > host));
+    assert((0 <= host) && (3 > host)); //SPI_HOST_MAX = 3
     const char *spi_names[] = {
         "SPI1_HOST", "SPI2_HOST", "SPI3_HOST"
     };
