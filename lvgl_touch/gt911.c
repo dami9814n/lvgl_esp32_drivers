@@ -53,6 +53,86 @@ void gt911_init(uint8_t dev_addr) {
         uint8_t data_buf;
         esp_err_t ret;
 
+        //.................................................................................
+        // Cambio sensibilità touchscreen
+        //.................................................................................
+        uint8_t threshold_touch_detected = 0;
+        uint8_t threshold_touch_released = 0;
+        uint8_t pga_gain = 0;
+        uint8_t panel_pga_gain = 0;
+        uint8_t gesturedrv_pga_gain = 0;
+        uint8_t flag_modify_configuration = 0;
+        vTaskDelay(pdMS_TO_TICKS(100));
+
+        /* Read current values */
+        gt911_i2c_read(dev_addr, 0x8053, &threshold_touch_detected, 1);
+        ESP_LOGI(TAG, "\tThreshold touch detected: %d", threshold_touch_detected);
+
+        gt911_i2c_read(dev_addr, 0x8054, &threshold_touch_released, 1);
+        ESP_LOGI(TAG, "\tThreshold touch released: %d", threshold_touch_released);
+
+        gt911_i2c_read(dev_addr, 0x80A5, &pga_gain, 1);
+        ESP_LOGI(TAG, "\tPGA_Gain: 0x%x", pga_gain & 0x07);
+
+        gt911_i2c_read(dev_addr, 0x8074, &gesturedrv_pga_gain, 1);
+        ESP_LOGI(TAG, "\tGestureDrv_PGA_Gain: 0x%x", gesturedrv_pga_gain & 0x0F);
+
+        gt911_i2c_read(dev_addr, 0x806C, &panel_pga_gain, 1);
+        ESP_LOGI(TAG, "\tPanel_PGA_Gain: 0x%x", panel_pga_gain & 0x07);
+
+        /* Check if the current values are different from the setpoints and update them in that case */
+        if(threshold_touch_detected != CONFIG_LV_GT911_THRSHLD_TOUCH_DETECTED)
+        {
+        	gt911_i2c_write8(dev_addr, 0x8053, CONFIG_LV_GT911_THRSHLD_TOUCH_DETECTED);
+        	ESP_LOGI(TAG, "\tNEW! threshold touch detected: %d", CONFIG_LV_GT911_THRSHLD_TOUCH_DETECTED);
+        	flag_modify_configuration = 1;
+        }
+
+        if(threshold_touch_released != CONFIG_LV_GT911_THRSHLD_TOUCH_RELEASED)
+        {
+        	gt911_i2c_write8(dev_addr, 0x8054, CONFIG_LV_GT911_THRSHLD_TOUCH_RELEASED);
+        	ESP_LOGI(TAG, "\tNEW! threshold touch released: %d", CONFIG_LV_GT911_THRSHLD_TOUCH_RELEASED);
+        	flag_modify_configuration = 1;
+        }
+
+        if((pga_gain & 0x07) != LV_GT911_PGA_GAIN)
+        {
+        	gt911_i2c_write8(dev_addr, 0x80A5, ((pga_gain & 0xF8)|LV_GT911_PGA_GAIN));
+        	ESP_LOGI(TAG, "\tNEW! PGA_Gain: 0x%x", LV_GT911_PGA_GAIN);
+        	flag_modify_configuration = 1;
+        }
+
+        if((gesturedrv_pga_gain & 0x0F) != LV_GT911_GESTUREDRV_PGA_GAIN)
+        {
+        	gt911_i2c_write8(dev_addr, 0x8074, ((gesturedrv_pga_gain & 0xF0)|LV_GT911_GESTUREDRV_PGA_GAIN));
+        	ESP_LOGI(TAG, "\tNEW! GestureDrv_PGA_Gain: 0x%x", LV_GT911_GESTUREDRV_PGA_GAIN);
+        	flag_modify_configuration = 1;
+        }
+
+        if((panel_pga_gain & 0x07) != LV_GT911_PANEL_PGA_GAIN)
+        {
+        	gt911_i2c_write8(dev_addr, 0x806C, ((panel_pga_gain & 0xF8)|LV_GT911_PANEL_PGA_GAIN));
+        	ESP_LOGI(TAG, "\tNEW! Panel_PGA_Gain: 0x%x", LV_GT911_PANEL_PGA_GAIN);
+        	flag_modify_configuration = 1;
+        }
+
+        /* Update configuration checksum if there have been any modification */
+        if(flag_modify_configuration) //if the configuration has been modified, we need to update the checksum
+        {
+			uint8_t checksum = 0;
+			for(int i=0; i<183; i++)
+			{
+				gt911_i2c_read(dev_addr, 0x8047 + i, &data_buf, 1);
+				checksum += data_buf;
+			}
+			checksum = (checksum ^ 0xFF)+1;
+
+			gt911_i2c_write8(dev_addr, 0x80FF, checksum);
+			gt911_i2c_write8(dev_addr, 0x8100, 1);
+        }
+
+        //.................................................................................
+
         ESP_LOGI(TAG, "Checking for GT911 Touch Controller");
         if ((ret = gt911_i2c_read(dev_addr, GT911_PRODUCT_ID1, &data_buf, 1) != ESP_OK)) {
             ESP_LOGE(TAG, "Error reading from device: %s",

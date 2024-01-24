@@ -459,6 +459,36 @@ menu "LVGL Touch controller"
             prompt "Invert Y coordinate value."
             default y
 
+        config LV_GT911_THRSHLD_TOUCH_DETECTED
+            int 
+            prompt "Threshold touch detected (0-255)"
+            range 0 255
+            default 250
+
+        config LV_GT911_THRSHLD_TOUCH_RELEASED
+            int 
+            prompt "Threshold touch released (0-255)"
+            range 0 255
+            default 220
+
+        config LV_GT911_PGA_GAIN
+            int 
+            prompt "PGA Gain (0-3)"
+            range 0 3
+            default 3
+
+        config LV_GT911_PANEL_PGA_GAIN
+            int 
+            prompt "Panel PGA Gain (0-3)"
+            range 0 3
+            default 3
+
+        config LV_GT911_GESTUREDRV_PGA_GAIN
+            int 
+            prompt "Gesture Driver PGA Gain (0-8)"
+            range 0 8
+            default 3
+
     endmenu
 
     choice
