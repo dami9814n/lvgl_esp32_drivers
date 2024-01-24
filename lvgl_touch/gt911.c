@@ -95,24 +95,24 @@ void gt911_init(uint8_t dev_addr) {
         	flag_modify_configuration = 1;
         }
 
-        if((pga_gain & 0x07) != LV_GT911_PGA_GAIN)
+        if((pga_gain & 0x07) != CONFIG_LV_GT911_PGA_GAIN)
         {
-        	gt911_i2c_write8(dev_addr, 0x80A5, ((pga_gain & 0xF8)|LV_GT911_PGA_GAIN));
-        	ESP_LOGI(TAG, "\tNEW! PGA_Gain: 0x%x", LV_GT911_PGA_GAIN);
+        	gt911_i2c_write8(dev_addr, 0x80A5, ((pga_gain & 0xF8)|CONFIG_LV_GT911_PGA_GAIN));
+        	ESP_LOGI(TAG, "\tNEW! PGA_Gain: 0x%x", CONFIG_LV_GT911_PGA_GAIN);
         	flag_modify_configuration = 1;
         }
 
-        if((gesturedrv_pga_gain & 0x0F) != LV_GT911_GESTUREDRV_PGA_GAIN)
+        if((gesturedrv_pga_gain & 0x0F) != CONFIG_LV_GT911_GESTUREDRV_PGA_GAIN)
         {
-        	gt911_i2c_write8(dev_addr, 0x8074, ((gesturedrv_pga_gain & 0xF0)|LV_GT911_GESTUREDRV_PGA_GAIN));
-        	ESP_LOGI(TAG, "\tNEW! GestureDrv_PGA_Gain: 0x%x", LV_GT911_GESTUREDRV_PGA_GAIN);
+        	gt911_i2c_write8(dev_addr, 0x8074, ((gesturedrv_pga_gain & 0xF0)|CONFIG_LV_GT911_GESTUREDRV_PGA_GAIN));
+        	ESP_LOGI(TAG, "\tNEW! GestureDrv_PGA_Gain: 0x%x", CONFIG_LV_GT911_GESTUREDRV_PGA_GAIN);
         	flag_modify_configuration = 1;
         }
 
-        if((panel_pga_gain & 0x07) != LV_GT911_PANEL_PGA_GAIN)
+        if((panel_pga_gain & 0x07) != CONFIG_LV_GT911_PANEL_PGA_GAIN)
         {
-        	gt911_i2c_write8(dev_addr, 0x806C, ((panel_pga_gain & 0xF8)|LV_GT911_PANEL_PGA_GAIN));
-        	ESP_LOGI(TAG, "\tNEW! Panel_PGA_Gain: 0x%x", LV_GT911_PANEL_PGA_GAIN);
+        	gt911_i2c_write8(dev_addr, 0x806C, ((panel_pga_gain & 0xF8)|CONFIG_LV_GT911_PANEL_PGA_GAIN));
+        	ESP_LOGI(TAG, "\tNEW! Panel_PGA_Gain: 0x%x", CONFIG_LV_GT911_PANEL_PGA_GAIN);
         	flag_modify_configuration = 1;
         }
 
